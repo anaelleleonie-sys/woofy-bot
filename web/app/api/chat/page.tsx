@@ -1,50 +1,48 @@
-"use client";
-import { useState } from "react";
+// web/app/chat/page.tsx
+'use client';
+import { useState } from 'react';
 
 export default function ChatPage() {
-  const [message, setMessage] = useState("");
+  const [msg, setMsg] = useState('');
   const [reply, setReply] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const sendMessage = async (e: React.FormEvent) => {
+  async function askWoofy(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setReply(null);
-
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg }),
       });
-
       const data = await res.json();
-      setReply(data.reply || "Pas de réponse 😅");
-    } catch (err) {
-      setReply("Erreur côté client ❌");
+      setReply(data.reply ?? JSON.stringify(data));
+    } catch (err: any) {
+      setReply(`Erreur: ${err?.message || 'inconnue'}`);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <main style={{ maxWidth: "600px", margin: "40px auto", textAlign: "center" }}>
-      <h1>Chat avec Woofy 🐶</h1>
-      <form onSubmit={sendMessage}>
+    <main style={{ maxWidth: 680, margin: '80px auto', padding: 16 }}>
+      <h1>Discuter avec Woofy 🐾</h1>
+      <form onSubmit={askWoofy} style={{ display: 'flex', gap: 8 }}>
         <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Pose ta question à Woofy..."
-          style={{ padding: "10px", width: "70%", marginRight: "10px" }}
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+          placeholder="Ta question sur les animaux…"
+          required
+          style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ddd' }}
         />
-        <button type="submit" disabled={loading}>
-          {loading ? "Envoi..." : "Envoyer"}
+        <button disabled={loading} style={{ padding: '10px 16px', borderRadius: 8 }}>
+          {loading ? 'Envoi…' : 'Envoyer'}
         </button>
       </form>
-
       {reply && (
-        <div style={{ marginTop: "20px", padding: "15px", border: "1px solid #ccc", borderRadius: "8px" }}>
+        <div style={{ marginTop: 16, padding: 12, background: '#fafafa', borderRadius: 8 }}>
           <strong>Woofy :</strong> {reply}
         </div>
       )}
